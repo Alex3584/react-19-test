@@ -1,14 +1,23 @@
 import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { fakeLogin } from "../api";
 
-function AuthForm() {
+const SubmitButton = () => {
+  const {pending} = useFormStatus()
+  return (
+    <button type="submit" className="btn" disabled={pending}>
+      {pending ? "Loading..." : "Submit"}
+    </button>
+  );
+};
 
+function AuthForm() {
   const [state, submitAction] = useActionState(auth, {
     data: null,
     error: null,
   });
 
- async function auth (prevState, formData) {
+  async function auth(prevState, formData) {
     const email = formData.get("email");
     const password = formData.get("password");
 
@@ -18,7 +27,7 @@ function AuthForm() {
     } catch (e) {
       return { ...prevState, error: e.message };
     }
-  };
+  }
 
   return (
     <form action={submitAction}>
@@ -35,9 +44,7 @@ function AuthForm() {
         />
         <label htmlFor="password">Password</label>
       </div>
-      <button type="submit" className="btn">
-        {"Submit"}
-      </button>
+      <SubmitButton />
       {state.data && <p>{state.data.email} logged in</p>}
       {state.error && <p style={{ color: "red" }}>{state.error}</p>}
     </form>
